@@ -1,5 +1,4 @@
-[![Build Status](http://120.78.209.28:5000/api/badges/jyao/ci_cd/status.svg)](http://120.78.209.28:5000/jyao/ci_cd)
-
+[![Build Status](https://drone.jyao.xyz/api/badges/jyao/ci_cd/status.svg)](https://drone.jyao.xyz/jyao/ci_cd)
 
 ### gitea + drone + drone-runner + redis + mysql + vault + 自动部署脚本
 
