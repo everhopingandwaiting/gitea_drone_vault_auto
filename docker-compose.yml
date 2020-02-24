@@ -51,6 +51,8 @@ services:
       - DRONE_USER_CREATE=username:jyao,admin:true
       # ssl
       - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
+      - DRONE_VALIDATE_PLUGIN_SKIP_VERIFY=true
+      - DRONE_WEBHOOK_SKIP_VERIFY=true
       # - DRONE_TLS_AUTOCERT=true
       # - DRONE_TLS_AUTOSCERT=true
       # - DRONE_HTTP_SSL_REDIRECT=true
