@@ -59,43 +59,6 @@ services:
       # cron
       - DRONE_CRON_INTERVAL=1h
 
-  # drone-agent:
-  #   image: drone/agent
-  #   container_name: drone-agent
-  #   restart: always
-  #   networks:
-  #   - overlay
-  #   depends_on:
-  #   - docker-runner
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #   environment:
-  #     - DRONE_RPC_SERVER=drone-server
-  #     - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
-  #     - DRONE_RUNNER_NAME=agent-runner
-
-# #  config for drone autoscaler
-#   drone-autoscaler:
-#     image: drone/autoscaler
-#     container_name: drone-autoscaler
-#     restart: always
-#     networks:
-#     - overlay
-#     depends_on:
-#     - docker-runner
-#     volumes:
-#     - ${BASE_PATH}/drone_/autoscaler:/data
-#     environment:
-#     - DRONE_POOL_MIN=2
-#     - DRONE_POOL_MAX=5
-#     - DRONE_SERVER_PROTO=http
-#     - DRONE_SERVER_HOST=drone-server
-#     #  server token need get from actual user tokens robot
-#     - DRONE_SERVER_TOKEN=62UvyQKqjDijxr9yxsxQNk82MuRjrygz
-#     - DRONE_AGENT_TOKEN=aa3dad124133bc6d197e10257f5234c9
-#     ports:
-#     - "5008:8080"
-
   # vault
   vault-server:
     image: vault

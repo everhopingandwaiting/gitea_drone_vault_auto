@@ -28,4 +28,3 @@ d48d5ca29ba7        vault                       "docker-entrypoint.s…"   2 hou
 d52a6ea7d2b4        registry                    "/entrypoint.sh /etc…"   2 hours ago         Up 2 hours                     5000/tcp                                      docker-registry      
 ```
 
-
