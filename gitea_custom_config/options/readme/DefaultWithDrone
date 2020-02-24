@@ -1,0 +1,9 @@
+# {Name}
+
+[![Build Status](http://120.78.209.28:5000/api/badges/{OwnerName}/{Name}/status.svg)](http://120.78.209.28:5000/{OwnerName}/{Name})
+
+{Description}
+
+{CloneURL.SSH}
+
+{CloneURL.HTTPS}

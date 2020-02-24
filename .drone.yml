@@ -1,0 +1,75 @@
+kind: pipeline
+type: ssh
+name: ssh-runner
+
+server:
+  host:
+    from_secret: sshhost
+  user:
+    from_secret: sshuser
+  password:
+    from_secret: sshpwd
+
+steps:
+- name: greeting
+  commands:
+  - pwd
+  - ls -al
+  - cat start.sh
+  - sh start.sh
+  
+---
+kind: pipeline
+type: docker
+name: docker-runner
+steps:
+  - name: 微信推送
+    image: appropriate/curl
+    commands:
+    - curl https://sc.ftqq.com/SCU2667T8aa21a06b885fdc93f4e8ad3e462bba35900ab16f370c.send?text=构建成功啦
+trigger:
+  event: ['tag','push']
+  
+---
+kind: secret
+name: pwd
+get:
+  path: docker/data/registry
+  name: pwd
+  
+---
+kind: secret
+name: name
+get:
+  path: docker/data/registry
+  name: username
+
+
+---
+kind: secret
+name: sshpwd
+get:
+  path: kv/data/sshserver
+  name: password
+  
+---
+kind: secret
+name: sshuser
+get:
+  path: kv/data/sshserver
+  name: user
+  
+---
+kind: secret
+name: sshport
+get:
+  path: kv/data/sshserver
+  name: port
+  
+---
+kind: secret
+name: sshhost
+get:
+  path: kv/data/sshserver
+  name: host
+  

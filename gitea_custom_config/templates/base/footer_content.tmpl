@@ -1,0 +1,24 @@
+<footer>
+	<div class="ui container">
+		<div class="ui left">
+			{{.i18n.Tr "powered_by" "me"}} {{if (or .ShowFooterVersion .PageIsAdmin)}}{{.i18n.Tr "version"}}: {{AppVer}}{{end}} {{if ShowFooterTemplateLoadTime}}{{.i18n.Tr "page"}}: <strong>{{LoadTimes .PageStartTime}}</strong> {{.i18n.Tr "template"}}: <strong>{{call .TmplLoadTimes}}</strong>{{end}}
+		</div>
+		<div class="ui right links">
+			{{if .ShowFooterBranding}}
+            <div></div>
+			{{end}}
+			<div class="ui language bottom floating slide up dropdown link item">
+				<i class="world icon"></i>
+				<div class="text">{{.LangName}}</div>
+				<div class="menu">
+					{{range .AllLangs}}
+						<a lang="{{.Lang}}" class="item {{if eq $.Lang .Lang}}active selected{{end}}" href="{{if eq $.Lang .Lang}}#{{else}}{{$.Link}}?lang={{.Lang}}{{end}}">{{.Name}}</a>
+					{{end}}
+				</div>
+			</div>
+			{{if .EnableSwagger}}<a href="{{AppSubUrl}}/api/swagger">API</a>{{end}}
+			{{template "custom/extra_links_footer" .}}
+			{{if (or .ShowFooterVersion .PageIsAdmin)}}<span class="version">{{GoVer}}</span>{{end}}
+		</div>
+	</div>
+</footer>

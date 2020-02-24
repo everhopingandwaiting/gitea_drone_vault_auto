@@ -1,0 +1,304 @@
+version: "3.7"
+services:
+  gitea-server:
+    image: gitea/gitea
+    depends_on: 
+    - redis-server
+    container_name: gitea-server
+    ports:
+      - "${GITEA_DOMAIN_PORT}:${GITEA_DOMAIN_PORT}"
+      - "10023:22"
+    volumes:
+      - ${BASE_PATH}/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - RUN_MODE=dev
+    restart: always
+    networks:
+      - overlay
+
+  drone-server:
+    image: drone/drone
+    depends_on: 
+    - gitea-server
+    container_name: drone-server
+    ports:
+      - "5000:80"
+      # - 9000
+      # - "5001:443"
+    volumes:
+      # - ${BASE_PATH}/drone_:/var/lib/drone
+      - ${BASE_PATH}/drone_:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    networks:
+      - overlay
+    environment:
+      # GITEA CONFIG
+      - DRONE_GITEA_SERVER=${GITEA_SERVER}
+      - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
+      - DRONE_AGENTS_ENABLED=true
+      - DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
+      - DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
+      - TZ=Asia/Shanghai
+      - DRONE_OPEN=true
+      - DRONE_GIT_ALWAYS_AUTH=true
+      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      # user
+      - DRONE_USER_CREATE=username:jyao,admin:true
+      # ssl
+      - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
+      # - DRONE_TLS_AUTOCERT=true
+      # - DRONE_TLS_AUTOSCERT=true
+      # - DRONE_HTTP_SSL_REDIRECT=true
+      # log
+      - DRONE_LOGS_COLOR=true
+      # cron
+      - DRONE_CRON_INTERVAL=1h
+
+  # drone-agent:
+  #   image: drone/agent
+  #   container_name: drone-agent
+  #   restart: always
+  #   networks:
+  #   - overlay
+  #   depends_on:
+  #   - docker-runner
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   environment:
+  #     - DRONE_RPC_SERVER=drone-server
+  #     - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+  #     - DRONE_RUNNER_NAME=agent-runner
+
+# #  config for drone autoscaler
+#   drone-autoscaler:
+#     image: drone/autoscaler
+#     container_name: drone-autoscaler
+#     restart: always
+#     networks:
+#     - overlay
+#     depends_on:
+#     - docker-runner
+#     volumes:
+#     - ${BASE_PATH}/drone_/autoscaler:/data
+#     environment:
+#     - DRONE_POOL_MIN=2
+#     - DRONE_POOL_MAX=5
+#     - DRONE_SERVER_PROTO=http
+#     - DRONE_SERVER_HOST=drone-server
+#     #  server token need get from actual user tokens robot
+#     - DRONE_SERVER_TOKEN=62UvyQKqjDijxr9yxsxQNk82MuRjrygz
+#     - DRONE_AGENT_TOKEN=aa3dad124133bc6d197e10257f5234c9
+#     ports:
+#     - "5008:8080"
+
+  # vault
+  vault-server:
+    image: vault
+    container_name: vault-server
+    depends_on:
+    - redis-server
+    privileged: true
+    command: ["server"]
+    restart: always
+    networks:
+    - overlay
+    tty: true
+    cap_add:
+    - IPC_LOCK
+    volumes:
+    # - ${BASE_PATH}/vault/logs:/vault/logs
+    - ${BASE_PATH}/vault:/vault
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    # - ${BASE_PATH}/vault/config:/vault/config
+    ports:
+      - "127.0.0.1:8200:8200"
+    # environment:
+    # - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
+    # - VAULT_API_ADDR=http://0.0.0.0:8200
+    # - SKIP_SETCAP=true
+    # - VAULT_LOCAL_CONFIG='{backend: {file: {path: /vault/file}}, default_lease_ttl: 168h, max_lease_ttl: 720h}'
+    # - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+
+  drone-vault:
+    image: drone/vault
+    depends_on: 
+    - vault-server
+    container_name: drone-vault
+    environment:
+    - DRONE_DEBUG=true
+    - VAULT_TOKEN=${VAULT_TOKEN}
+    - VAULT_ADDR=http://vault-server:8200
+    - DRONE_SECRET=${VAULT_TOKEN}
+    - SECRET_KEY=${VAULT_TOKEN}
+    - TZ=Asia/Shanghai
+    restart: always
+    networks:
+    - overlay
+
+  docker-runner:
+    image: drone/drone-runner-docker
+    depends_on: 
+    - drone-vault
+    container_name: docker-runner
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # vault config
+      - DRONE_SECRET_PLUGIN_SKIP_VERIFY=true
+      - DRONE_SECRET_PLUGIN_ENDPOINT=http://drone-vault:3000
+      - DRONE_SECRET_PLUGIN_TOKEN=${VAULT_TOKEN}
+      # runner config
+      - DRONE_RPC_SKIP_VERIFY=true
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone-server
+      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RUNNER_CAPACITY=12
+      - DRONE_RUNNER_NAME=ub-jy
+      - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
+      - DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
+      - DRONE_MEMORY_SWAP_LIMIT=500000000
+      - TZ=Asia/Shanghai  
+      # just docker
+      - DRONE_RUNNER_VOLUMES=/etc/docker/daemon.json:/etc/docker/daemon.json,/tmp/var/lib/docker:/var/lib/docker,/root/.m2:/root/.m2
+      # other CONFIG
+      - DRONE_RPC_DUMP_HTTP=true
+      - DRONE_RPC_DUMP_HTTP_BODY=true
+      - DRONE_TRACE=false
+      - DRONE_DEBUG=true
+    restart: always
+    ports:
+      - "30000:3000"
+    networks:
+      - overlay
+
+  ssh-runner:
+    image: drone/drone-runner-ssh
+    depends_on: 
+    - drone-vault
+    container_name: ssh-runner
+    environment:
+      # vault config
+      - DRONE_SECRET_PLUGIN_SKIP_VERIFY=true
+      - DRONE_SECRET_PLUGIN_ENDPOINT=http://drone-vault:3000
+      - DRONE_SECRET_PLUGIN_TOKEN=${VAULT_TOKEN}
+      # runner config
+      - DRONE_RPC_SKIP_VERIFY=true
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone-server
+      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RUNNER_CAPACITY=12
+      - DRONE_RUNNER_NAME=ub-jy
+      - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
+      - DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
+      - DRONE_MEMORY_SWAP_LIMIT=500000000
+      - TZ=Asia/Shanghai
+      # other CONFIG
+      - DRONE_RPC_DUMP_HTTP=true
+      - DRONE_RPC_DUMP_HTTP_BODY=true
+      - DRONE_TRACE=false
+      - DRONE_DEBUG=true
+    restart: always
+    ports:
+      - "30001:3000"
+    networks:
+      - overlay
+
+  nginx-server:
+    image: nginx
+    container_name: nginx-server
+    volumes:
+    - ${BASE_PATH}/nginx/nginx.conf:/etc/nginx/nginx.conf
+    - ${BASE_PATH}/nginx:/opt
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    ports:
+    - "80:80"
+    - "443:443"
+    environment:
+    - TZ=Asia/Shanghai
+    restart: always
+    networks:
+    - overlay
+
+  docker-registry:
+    image: registry
+    container_name: docker-registry
+    volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    ports:
+    - "192.168.1.87:5003:5000"
+    environment:
+    - TZ=Asia/Shanghai
+    restart: always
+    networks:
+    - overlay
+
+  redis-server:
+    image: redis
+    container_name: redis-server
+    volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    environment:
+    - TZ=Asia/Shanghai
+    restart: always
+    networks:
+    - overlay
+    # deploy:
+    #   # mode: deploy
+    #   mode: replicated
+    #   replicas: 1
+    #   # replicas: 2
+
+  # vault
+  mysql-server:
+    image: mysql
+    container_name: mysql-server
+    depends_on:
+    - redis-server
+    privileged: true
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    networks:
+    - overlay
+    # tty: true
+    # cap_add:
+    # - IPC_LOCK
+    volumes:
+    - ${BASE_PATH}/mysql_/custom:/etc/mysql/conf.d
+    - ${BASE_PATH}/mysql_/datadir:/var/lib/mysql
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3366:3306"
+    environment:
+    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+  adminer-server:
+    image: adminer
+    container_name: adminer-server
+    volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    environment:
+    - TZ=Asia/Shanghai
+    restart: always
+    networks:
+    - overlay
+    ports:
+    - 8080
+    deploy:
+      # mode: deploy
+      mode: replicated
+      replicas: 1
+      # replicas: 2
+
+networks:
+  overlay:
