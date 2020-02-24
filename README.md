@@ -1,4 +1,4 @@
-[![Build Status](https://drone.jyao.xyz/api/badges/jyao/ci_cd/status.svg)](https://drone.jyao.xyz/jyao/ci_cd)
+[![Build Status](https://drone.jyao.xyz/api/badges/jyao/gitea_drone_vault_auto/status.svg)](https://drone.jyao.xyz/jyao/gitea_drone_vault_auto)
 
 ### gitea + drone + drone-runner + redis + mysql + vault + 自动部署脚本
 
