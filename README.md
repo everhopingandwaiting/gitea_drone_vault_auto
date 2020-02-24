@@ -25,7 +25,7 @@ CONTAINER ID        IMAGE                       COMMAND                  CREATED
 d48d5ca29ba7        vault                       "docker-entrypoint.s…"   2 hours ago         Up 2 hours                             8200/tcp                                      vault-server
 974fc5f87f72        nginx                       "nginx -g 'daemon of…"   2 hours ago         Up 2 hours                         443/tcp                    nginx-server
 8f05528d8173        adminer                     "entrypoint.sh docke…"   2 hours ago         Up 2 hours                 8080/tcp                                     adminer-server                                 9d436f801f18        redis                       "docker-entrypoint.s…"   2 hours ago         Up 2 hours          6379/tcp                                                    redis-server
-d52a6ea7d2b4        registry                    "/entrypoint.sh /etc…"   2 hours ago         Up 2 hours                     5000/tcp                                      docker-registry      
+d52a6ea7d2b4        registry                    "/entrypoint.sh /etc…"   2 hours ago         Up 2 hours                     5000/tcp                        docker-registry      
 ```
 
 ### 注意：
