@@ -28,3 +28,35 @@ d48d5ca29ba7        vault                       "docker-entrypoint.s…"   2 hou
 d52a6ea7d2b4        registry                    "/entrypoint.sh /etc…"   2 hours ago         Up 2 hours                     5000/tcp                                      docker-registry      
 ```
 
+### 注意：
+
+docker-compose 构建需要必须环境变量，执行前要么直接 `sh start.sh`启动，或者先如下操作：
+
+```bash
+
+source .env
+
+# gitea app.ini setup
+gitea_domain=${SYS__ADDR} # get from .env
+
+gitea_protocal=https
+
+## env
+# base
+export BASE_PATH=/root/aliroot/ci_cd
+export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+# gitea 
+export GITEA_DOMAIN_PORT=10081
+export GITEA_SERVER=${gitea_protocal}://${gitea_domain}
+export DRONE_GITEA_CLIENT_ID=049b6079-084c-41c7-8b49-21a5f581bd4d
+export DRONE_GITEA_CLIENT_SECRET=1PHyGHGOfgn1jvDVf_TVxvvdEb5n1pC5q8x4gCP1mjA=
+# drone
+export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
+export DRONE_SERVER_PROTO=https
+
+export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
+export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
+
+# vault
+export VAULT_TOKEN=${VAULT_TOKEN}
+```
