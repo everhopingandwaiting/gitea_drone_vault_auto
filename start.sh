@@ -33,6 +33,9 @@ export VAULT_TOKEN=${VAULT_TOKEN}
 
 ## end
 
+# timezone config
+echo "Asia/Shanghai" > /etc/timezone
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 mkdir -p ${BASE_PATH}/vault/config
 cp -r vault_conf/* ${BASE_PATH}/vault/config
