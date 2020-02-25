@@ -90,7 +90,7 @@ services:
     ports:
       - "8200:8200"
     environment:
-      - VAULT_DEV_ROOT_TOKEN_ID=s.yTTi6JP4ZIK1MwTopmyBrre7
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
     # - VAULT_API_ADDR=http://0.0.0.0:8200
     # - SKIP_SETCAP=true
     # - VAULT_LOCAL_CONFIG='{backend: {file: {path: /vault/file}}, default_lease_ttl: 168h, max_lease_ttl: 720h}'
@@ -111,10 +111,10 @@ services:
       - 3000
     environment:
       - DRONE_DEBUG=true
-      - VAULT_TOKEN=s.yTTi6JP4ZIK1MwTopmyBrre7
+      - VAULT_TOKEN=${VAULT_TOKEN}
       - VAULT_ADDR=http://vault-server:8200
-      - DRONE_SECRET=s.yTTi6JP4ZIK1MwTopmyBrre7
-      - SECRET_KEY=s.yTTi6JP4ZIK1MwTopmyBrre7
+      - DRONE_SECRET=${VAULT_TOKEN}
+      - SECRET_KEY=${VAULT_TOKEN}
       - TZ=Asia/Shanghai
     restart: always
     networks:
@@ -135,7 +135,7 @@ services:
       # vault config
       - DRONE_SECRET_PLUGIN_SKIP_VERIFY=true
       - DRONE_SECRET_PLUGIN_ENDPOINT=http://drone-vault:3000
-      - DRONE_SECRET_PLUGIN_TOKEN=s.yTTi6JP4ZIK1MwTopmyBrre7
+      - DRONE_SECRET_PLUGIN_TOKEN=${VAULT_TOKEN}
       # runner config
       - DRONE_RPC_SKIP_VERIFY=true
       - DRONE_RPC_PROTO=http
@@ -173,7 +173,7 @@ services:
       # vault config
       - DRONE_SECRET_PLUGIN_SKIP_VERIFY=true
       - DRONE_SECRET_PLUGIN_ENDPOINT=http://drone-vault:3000
-      - DRONE_SECRET_PLUGIN_TOKEN=s.yTTi6JP4ZIK1MwTopmyBrre7
+      - DRONE_SECRET_PLUGIN_TOKEN=${VAULT_TOKEN}
       # runner config
       - DRONE_RPC_SKIP_VERIFY=true
       - DRONE_RPC_PROTO=http
