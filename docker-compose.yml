@@ -303,5 +303,5 @@ services:
 
 networks:
   git-network:
-    driver: overlay
+    # driver: overlay
 # network_mode: overlay
