@@ -4,6 +4,7 @@ services:
     image: gitea/gitea
     depends_on:
       - redis-server
+      - mysql-server
     container_name: gitea-server
     ports:
       - "${GITEA_DOMAIN_PORT}:${GITEA_DOMAIN_PORT}"
@@ -29,8 +30,9 @@ services:
     container_name: drone-server
     ports:
       - "5000:80"
-      # - 9000
       # - "5001:443"
+    expose: 
+    - 80
     volumes:
       # - ${BASE_PATH}/drone_:/var/lib/drone
       - ${BASE_PATH}/drone_:/data
@@ -59,7 +61,7 @@ services:
       - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
       - DRONE_VALIDATE_PLUGIN_SKIP_VERIFY=true
       - DRONE_WEBHOOK_SKIP_VERIFY=true
-      - DRONE_TLS_AUTOCERT=true
+      # - DRONE_TLS_AUTOCERT=true
       # - DRONE_HTTP_SSL_REDIRECT=true
       # log
       - DRONE_LOGS_COLOR=true
@@ -206,7 +208,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "5003:5000"
+      - "5005:5000"
     environment:
       - TZ=Asia/Shanghai
     restart: always
@@ -232,33 +234,32 @@ services:
       placement:
         constraints: [node.role == worker]
 
-  # # mysql
-  # mysql-server:
-  #   image: mysql
-  #   container_name: mysql-server
-  #   depends_on:
-  #   - redis-server
-  #   privileged: true
-  #   command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-  #   restart: always
-  #   networks:
-  #   - git-network
-  #   # tty: true
-  #   # cap_add:
-  #   # - IPC_LOCK
-  #   volumes:
-  #   - ${BASE_PATH}/mysql_/custom:/etc/mysql/conf.d
-  #   - ${BASE_PATH}/mysql_/datadir:/var/lib/mysql
-  #   - /etc/timezone:/etc/timezone:ro
-  #   - /etc/localtime:/etc/localtime:ro
-  #   ports:
-  #     - "3366:3306"
-  #   environment:
-  #   - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-  # deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints: [node.role == manager]
+  # mysql
+  mysql-server:
+    image: mysql
+    container_name: mysql-server
+    # depends_on:
+    # - redis-server
+    privileged: true
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    networks:
+    - git-network
+    # tty: true
+    # cap_add:
+    # - IPC_LOCK
+    volumes:
+    - ${BASE_PATH}/mysql_/custom:/etc/mysql/conf.d
+    - ${BASE_PATH}/mysql_/datadir:/var/lib/mysql
+    - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3366:3306"
+    environment:
+    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   adminer-server:
     image: adminer
@@ -271,35 +272,35 @@ services:
     networks:
       - git-network
     ports:
-      - 8080
+      - 30088:8080
     deploy:
       replicas: 1
       placement:
         constraints: [node.role == manager]
 
-  nginx-server:
-    image: nginx
-    container_name: nginx-server
-    depends_on:
-      - docker-runner
-      - ssh-runner
-      - drone-server
-    volumes:
-      - ${BASE_PATH}/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ${BASE_PATH}/nginx:/opt
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - TZ=Asia/Shanghai
-    restart: always
-    networks:
-      - git-network
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
+  # nginx-server:
+  #   image: nginx
+  #   container_name: nginx-server
+  #   depends_on:
+  #     - docker-runner
+  #     - ssh-runner
+  #     - drone-server
+  #   volumes:
+  #     - ${BASE_PATH}/nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ${BASE_PATH}/nginx:/opt
+  #     - /etc/localtime:/etc/localtime:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   environment:
+  #     - TZ=Asia/Shanghai
+  #   restart: always
+  #   networks:
+  #     - git-network
+  #   deploy:
+  #     replicas: 1
+  #     placement:
+  #       constraints: [node.role == manager]
 
 networks:
   git-network:

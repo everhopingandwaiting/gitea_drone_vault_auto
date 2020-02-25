@@ -17,12 +17,12 @@ gitea_protocal=http
 export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 # gitea 
 export GITEA_DOMAIN_PORT=10081
-export GITEA_SERVER=${gitea_protocal}://${gitea_domain}:10081
-export DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
+export GITEA_SERVER="${gitea_protocal}://${gitea_domain}:10081/"
+export DRONE_GITEA_CLIENT_ID="${DRONE_GITEA_CLIENT_ID}"
 export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 # drone
-export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
-export DRONE_SERVER_PROTO=http
+export DRONE_SERVER_HOST="${SYS_DRONE_ADDR}"
+export DRONE_SERVER_PROTO=${gitea_protocal}
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
 export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
@@ -59,7 +59,7 @@ echo "########################end#########################"
 #  docker-compose pull --include-deps
 # go go go ko
 docker-compose up --force-recreate  --remove-orphans -d
-docker-compose up  --remove-orphans -d
+# docker-compose up  --remove-orphans -d
 docker-compose logs -t --tail="1000"
 # or 
 # docker stack deploy -c docker-compose.yml gitea_all
