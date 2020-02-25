@@ -60,3 +60,17 @@ export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
 # vault
 export VAULT_TOKEN=${VAULT_TOKEN}
 ```
+
+
+### 获取自签名证书
+ ```bash
+ 
+ openssl req -newkey rsa:4096 -nodes -keyout domain.key -x509 -days 300 -out domain.crt
+
+ ```
+
+ ## 启动时docker daomon 停止
+
+ > 可能由于某个容器发生未知错误，需手动 `docker rm -f 容器ID`
+
+ 

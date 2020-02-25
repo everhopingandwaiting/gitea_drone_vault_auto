@@ -29,6 +29,8 @@ export VAULT_TOKEN=${VAULT_TOKEN}
 
 
 ## end
+
+
 ls ${BASE_PATH} || mkdir -p ${BASE_PATH}
 cd ${BASE_PATH}
 
@@ -41,18 +43,20 @@ sed -i "s/#gitea_domain#/${gitea_domain}/g" gitea/gitea/conf/app.ini
 sed -i "s/#gitea_domain_port#/${GITEA_DOMAIN_PORT}/g" gitea/gitea/conf/app.ini
 sed -i "s/#gitea_protocal#/${gitea_protocal}/g" gitea/gitea/conf/app.ini
 sed -i "s/#mysql_root_password#/${MYSQL_ROOT_PASSWORD}/g" gitea/gitea/conf/app.ini
+
+docker network prune -f
+docker system prune -f
 systemctl start docker.service
 
  docker-compose pull --include-deps
 # go go go ko
-# docker-compose up --force-recreate  --remove-orphans -d
+docker-compose up --force-recreate  --remove-orphans -d
 docker-compose up  --remove-orphans -d
 docker-compose logs -t --tail="1000"
 # or 
 # docker stack deploy -c docker-compose.yml gitea_all
 
 docker ps
-docker system prune -f
 
 
 # unseal vault
