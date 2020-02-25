@@ -42,6 +42,9 @@ services:
       - git-network
     environment:
       - DRONE_JSONNET_ENABLED=true
+      # db
+      - DRONE_DATABASE_DRIVER=mysql
+      - DRONE_DATABASE_DATASOURCE=root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true
       # GITEA CONFIG
       - DRONE_GITEA_SERVER=${GITEA_SERVER}
       - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
@@ -51,7 +54,7 @@ services:
       - TZ=Asia/Shanghai
       - DRONE_OPEN=true
       - DRONE_GIT_ALWAYS_AUTH=true
-      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RPC_SECRET=31c75cd3acbfa05845407cf95709a8a6
       # user
       - DRONE_USER_CREATE=username:jyao,admin:true
       # ssl
@@ -142,7 +145,7 @@ services:
       - DRONE_RPC_SKIP_VERIFY=true
       - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone-server
-      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RPC_SECRET=31c75cd3acbfa05845407cf95709a8a6
       - DRONE_RUNNER_CAPACITY=12
       - DRONE_RUNNER_NAME=ub-jy
       - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
@@ -180,7 +183,7 @@ services:
       - DRONE_RPC_SKIP_VERIFY=true
       - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone-server
-      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RPC_SECRET=31c75cd3acbfa05845407cf95709a8a6
       - DRONE_RUNNER_CAPACITY=12
       - DRONE_RUNNER_NAME=ub-jy
       - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
