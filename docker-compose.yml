@@ -211,7 +211,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "192.168.1.87:5003:5000"
+      - "5003:5000"
     environment:
       - TZ=Asia/Shanghai
     restart: always
