@@ -18,6 +18,10 @@ services:
     restart: always
     networks:
       - git-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   drone-server:
     image: drone/drone
@@ -63,6 +67,10 @@ services:
       - DRONE_LOGS_COLOR=true
       # cron
       - DRONE_CRON_INTERVAL=1h
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   # vault
   vault-server:
@@ -90,6 +98,10 @@ services:
     # - SKIP_SETCAP=true
     # - VAULT_LOCAL_CONFIG='{backend: {file: {path: /vault/file}}, default_lease_ttl: 168h, max_lease_ttl: 720h}'
     # - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   drone-vault:
     image: drone/vault
@@ -111,6 +123,10 @@ services:
     restart: always
     networks:
       - git-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   docker-runner:
     image: drone/drone-runner-docker
@@ -147,6 +163,10 @@ services:
       - "30000:3000"
     networks:
       - git-network
+    deploy:
+      replicas: 3
+      placement:
+        constraints: [node.role == worker]
 
   ssh-runner:
     image: drone/drone-runner-ssh
@@ -179,6 +199,10 @@ services:
       - "30001:3000"
     networks:
       - git-network
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.role == worker]
 
   docker-registry:
     image: registry
@@ -193,6 +217,10 @@ services:
     restart: always
     networks:
       - git-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   redis-server:
     image: redis
@@ -205,11 +233,10 @@ services:
     restart: always
     networks:
       - git-network
-    # deploy:
-    #   # mode: deploy
-    #   mode: replicated
-    #   replicas: 1
-    #   # replicas: 2
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
 
   # # mysql
   # mysql-server:
@@ -234,6 +261,10 @@ services:
   #     - "3366:3306"
   #   environment:
   #   - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    # deploy:
+    #     replicas: 1
+    #     placement:
+    #       constraints: [node.role == manager]
 
   adminer-server:
     image: adminer
@@ -249,10 +280,9 @@ services:
     ports:
       - 8080
     deploy:
-      # mode: deploy
-      mode: replicated
       replicas: 1
-      # replicas: 2
+      placement:
+        constraints: [node.role == manager]
   nginx-server:
     image: nginx
     container_name: nginx-server
@@ -273,6 +303,12 @@ services:
     restart: always
     networks:
       - git-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
 networks:
   git-network:
+    driver: overlay
+# network_mode: overlay

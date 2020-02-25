@@ -16,8 +16,8 @@ steps:
   - pwd
   - ls -al
   - cat start.sh
-  - sh start.sh
-  
+  - nohup ./start.sh &
+  - exit 0
 ---
 kind: pipeline
 type: docker

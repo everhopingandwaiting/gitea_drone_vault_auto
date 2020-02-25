@@ -1,6 +1,10 @@
 #! /bin/bash
-# https://github.com/drone/drone-ui
 
+# base
+export BASE_PATH=/root/aliroot/ci_cd
+
+ls ${BASE_PATH} || mkdir -p ${BASE_PATH}
+cd ${BASE_PATH}
 source .env
 
 # gitea app.ini setup
@@ -9,14 +13,13 @@ gitea_domain=${SYS__ADDR} # get from .env
 gitea_protocal=https
 
 ## env
-# base
-export BASE_PATH=/root/aliroot/ci_cd
+
 export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 # gitea 
 export GITEA_DOMAIN_PORT=10081
 export GITEA_SERVER=${gitea_protocal}://${gitea_domain}
-export DRONE_GITEA_CLIENT_ID=049b6079-084c-41c7-8b49-21a5f581bd4d
-export DRONE_GITEA_CLIENT_SECRET=1PHyGHGOfgn1jvDVf_TVxvvdEb5n1pC5q8x4gCP1mjA=
+export DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
+export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 # drone
 export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
 export DRONE_SERVER_PROTO=https
@@ -31,23 +34,25 @@ export VAULT_TOKEN=${VAULT_TOKEN}
 ## end
 
 
-ls ${BASE_PATH} || mkdir -p ${BASE_PATH}
-cd ${BASE_PATH}
-
-mkdir -p vault/config
-cp -r vault_conf/* vault/config
-
-cp -r gitea_custom_config/* gitea/gitea
+mkdir -p ${BASE_PATH}/vault/config
+cp -r vault_conf/* ${BASE_PATH}/vault/config
+mkdir -p ${BASE_PATH}/gitea/gitea
+cp -r gitea_custom_config/* ${BASE_PATH}/gitea/gitea
 # replace app.ini fields
-sed -i "s/#gitea_domain#/${gitea_domain}/g" gitea/gitea/conf/app.ini
-sed -i "s/#gitea_domain_port#/${GITEA_DOMAIN_PORT}/g" gitea/gitea/conf/app.ini
-sed -i "s/#gitea_protocal#/${gitea_protocal}/g" gitea/gitea/conf/app.ini
-sed -i "s/#mysql_root_password#/${MYSQL_ROOT_PASSWORD}/g" gitea/gitea/conf/app.ini
+sed -i "s/#gitea_domain#/${gitea_domain}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
+sed -i "s/#gitea_domain_port#/${GITEA_DOMAIN_PORT}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
+sed -i "s/#gitea_protocal#/${gitea_protocal}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
+sed -i "s/#mysql_root_password#/${MYSQL_ROOT_PASSWORD}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
 docker network prune -f
 docker system prune -f
 systemctl start docker.service
 
+
+#  before run docker-compose, print config first
+echo "#######################start##########################"
+docker-compose config
+echo "########################end#########################"
  docker-compose pull --include-deps
 # go go go ko
 docker-compose up --force-recreate  --remove-orphans -d
