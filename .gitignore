@@ -544,3 +544,4 @@ nginx
 secret_document
 nohup.out
 switcher_backup.env
+*.env*

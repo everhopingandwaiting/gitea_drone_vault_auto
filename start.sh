@@ -10,31 +10,16 @@ source .env
 # gitea app.ini setup
 gitea_domain=${SYS__ADDR} # get from .env
 
-<<<<<<< HEAD
-gitea_protocal=http
-
-=======
->>>>>>> ffab88044904b0a9bb8d9dee448230b2bce7cc70
 ## env
 
 export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 # gitea 
-<<<<<<< HEAD
-export GITEA_DOMAIN_PORT=10081
-export GITEA_SERVER="${gitea_protocal}://${gitea_domain}:10081/"
-export DRONE_GITEA_CLIENT_ID="${DRONE_GITEA_CLIENT_ID}"
-export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
-# drone
-export DRONE_SERVER_HOST="${SYS_DRONE_ADDR}"
-export DRONE_SERVER_PROTO=${gitea_protocal}
-=======
 export GITEA_SERVER=${GITEA_PROTOCAL}://${GITEA_SERVER}
 export DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
 export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 # drone
 export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
 export DRONE_SERVER_PROTO=${GITEA_PROTOCAL}
->>>>>>> ffab88044904b0a9bb8d9dee448230b2bce7cc70
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
 export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
@@ -59,7 +44,7 @@ sed -i "s/#gitea_domain_port#/${GITEA_DOMAIN_PORT}/g" ${BASE_PATH}/gitea/gitea/c
 sed -i "s/#gitea_protocal#/${GITEA_PROTOCAL}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 sed -i "s/#mysql_root_password#/${MYSQL_ROOT_PASSWORD}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
-sed -i "s/need_to_replace_ip/${gitea_domain}/g"  `grep need_to_replace_ip -rl ${BASE_PATH}/`
+sed -i "s/need_to_replace_ip/${gitea_domain}/g"  `grep need_to_replace_ip -rl ${BASE_PATH}/gitea`
 
 docker network prune -f
 docker system prune -f
@@ -70,10 +55,10 @@ systemctl start docker.service
 echo "#######################start##########################"
 docker-compose config
 echo "########################end#########################"
-#  docker-compose pull --include-deps
+ docker-compose pull --include-deps
 # go go go ko
 docker-compose up --force-recreate  --remove-orphans -d
-# docker-compose up  --remove-orphans -d
+docker-compose up  --remove-orphans -d
 docker-compose logs -t --tail="1000"
 # or 
 # docker stack deploy -c docker-compose.yml gitea_all
