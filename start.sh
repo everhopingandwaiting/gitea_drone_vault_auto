@@ -58,10 +58,10 @@ systemctl start docker.service
 echo "#######################start##########################"
 docker-compose config
 echo "########################end#########################"
- docker-compose pull --include-deps
+#  docker-compose pull --include-deps
 # go go go ko
-docker-compose up --force-recreate  --remove-orphans -d
-docker-compose up  --remove-orphans -d
+docker-compose up --force-recreate  --remove-orphans -d --scale docker-runner=2 ssh-runner=2
+docker-compose up  --remove-orphans -d --scale docker-runner=2 ssh-runner=2
 docker-compose logs -t --tail="1000"
 # or 
 # docker stack deploy -c docker-compose.yml gitea_all
