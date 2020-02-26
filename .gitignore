@@ -543,3 +543,4 @@ mysql_/datadir/
 nginx
 secret_document
 nohup.out
+*.env*
