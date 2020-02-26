@@ -132,7 +132,7 @@ services:
     image: drone/drone-runner-docker
     depends_on:
       - drone-vault
-    container_name: docker-runner
+    # container_name: docker-runner
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -173,7 +173,7 @@ services:
     image: drone/drone-runner-ssh
     depends_on:
       - drone-server
-    container_name: ssh-runner
+    # container_name: ssh-runner
     environment:
       - LANG=en_US.UTF-8
       # vault config
@@ -226,7 +226,7 @@ services:
 
   redis-server:
     image: redis
-    container_name: redis-server
+    # container_name: redis-server
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     environment:
@@ -265,7 +265,7 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
-
+        
   adminer-server:
     image: adminer
     container_name: adminer-server
@@ -290,7 +290,6 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
-
   adminer-server:
     image: adminer
     container_name: adminer-server
@@ -337,7 +336,6 @@ services:
   #     replicas: 1
   #     placement:
   #       constraints: [node.role == manager]
-
 networks:
   git-network:
     # driver: overlay
