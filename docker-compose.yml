@@ -4,13 +4,14 @@ services:
     image: gitea/gitea
     depends_on:
       - redis-server
+      # - mysql-server
     container_name: gitea-server
     ports:
       - "${GITEA_DOMAIN_PORT}:${GITEA_DOMAIN_PORT}"
       - "10023:22"
     volumes:
       - ${BASE_PATH}/gitea:/data
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     environment:
       - TZ=Asia/Shanghai
       - RUN_MODE=dev
@@ -29,17 +30,19 @@ services:
     container_name: drone-server
     ports:
       - "5000:80"
-      # - 9000
-      # - "5001:443"
     volumes:
       # - ${BASE_PATH}/drone_:/var/lib/drone
       - ${BASE_PATH}/drone_:/data
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     restart: always
     networks:
       - git-network
     environment:
       - DRONE_JSONNET_ENABLED=true
+      - LANG=en_US.UTF-8
+      # db
+      # - DRONE_DATABASE_DRIVER=mysql
+      # - DRONE_DATABASE_DATASOURCE=root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true
       # GITEA CONFIG
       - DRONE_GITEA_SERVER=${GITEA_SERVER}
       - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
@@ -49,7 +52,7 @@ services:
       - TZ=Asia/Shanghai
       - DRONE_OPEN=true
       - DRONE_GIT_ALWAYS_AUTH=true
-      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RPC_SECRET=drone_secret_by_jyao
       # user
       - DRONE_USER_CREATE=username:jyao,admin:true
       # ssl
@@ -59,7 +62,7 @@ services:
       - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
       - DRONE_VALIDATE_PLUGIN_SKIP_VERIFY=true
       - DRONE_WEBHOOK_SKIP_VERIFY=true
-      - DRONE_TLS_AUTOCERT=true
+      # - DRONE_TLS_AUTOCERT=true
       # - DRONE_HTTP_SSL_REDIRECT=true
       # log
       - DRONE_LOGS_COLOR=true
@@ -85,11 +88,12 @@ services:
     volumes:
       # - ${BASE_PATH}/vault/logs:/vault/logs
       - ${BASE_PATH}/vault:/vault
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     # - ${BASE_PATH}/vault/config:/vault/config
     ports:
       - "8200:8200"
     environment:
+      - LANG=en_US.UTF-8
       - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
     # - VAULT_API_ADDR=http://0.0.0.0:8200
     # - SKIP_SETCAP=true
@@ -106,15 +110,15 @@ services:
       - vault-server
     container_name: drone-vault
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     expose:
       - 3000
     environment:
+      - LANG=en_US.UTF-8
       - DRONE_DEBUG=true
       - VAULT_TOKEN=${VAULT_TOKEN}
       - VAULT_ADDR=http://vault-server:8200
-      - DRONE_SECRET=${VAULT_TOKEN}
-      - SECRET_KEY=${VAULT_TOKEN}
+      - DRONE_SECRET=provide_drone_vault_token_key_by_jyao
       - TZ=Asia/Shanghai
     restart: always
     networks:
@@ -132,15 +136,16 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - LANG=en_US.UTF-8
       # vault config
       - DRONE_SECRET_PLUGIN_SKIP_VERIFY=true
       - DRONE_SECRET_PLUGIN_ENDPOINT=http://drone-vault:3000
-      - DRONE_SECRET_PLUGIN_TOKEN=${VAULT_TOKEN}
+      - DRONE_SECRET_PLUGIN_TOKEN=provide_drone_vault_token_key_by_jyao
       # runner config
       - DRONE_RPC_SKIP_VERIFY=true
       - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone-server
-      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RPC_SECRET=drone_secret_by_jyao
       - DRONE_RUNNER_CAPACITY=12
       - DRONE_RUNNER_NAME=ub-jy
       - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
@@ -152,7 +157,7 @@ services:
       # other CONFIG
       - DRONE_RPC_DUMP_HTTP=true
       - DRONE_RPC_DUMP_HTTP_BODY=true
-      - DRONE_TRACE=false
+      - DRONE_TRACE=true
       - DRONE_DEBUG=true
     restart: always
     ports:
@@ -170,15 +175,16 @@ services:
       - drone-server
     container_name: ssh-runner
     environment:
+      - LANG=en_US.UTF-8
       # vault config
       - DRONE_SECRET_PLUGIN_SKIP_VERIFY=true
       - DRONE_SECRET_PLUGIN_ENDPOINT=http://drone-vault:3000
-      - DRONE_SECRET_PLUGIN_TOKEN=${VAULT_TOKEN}
+      - DRONE_SECRET_PLUGIN_TOKEN=provide_drone_vault_token_key_by_jyao
       # runner config
       - DRONE_RPC_SKIP_VERIFY=true
       - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone-server
-      - DRONE_RPC_SECRET=aa3dad124133bc6d197e10257f5234c9
+      - DRONE_RPC_SECRET=drone_secret_by_jyao
       - DRONE_RUNNER_CAPACITY=12
       - DRONE_RUNNER_NAME=ub-jy
       - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
@@ -188,7 +194,7 @@ services:
       # other CONFIG
       - DRONE_RPC_DUMP_HTTP=true
       - DRONE_RPC_DUMP_HTTP_BODY=true
-      - DRONE_TRACE=false
+      - DRONE_TRACE=true
       - DRONE_DEBUG=true
     restart: always
     ports:
@@ -204,10 +210,11 @@ services:
     image: registry
     container_name: docker-registry
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     ports:
-      - "5003:5000"
+      - "5005:5000"
     environment:
+      - LANG=en_US.UTF-8
       - TZ=Asia/Shanghai
     restart: always
     networks:
@@ -221,8 +228,9 @@ services:
     image: redis
     container_name: redis-server
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     environment:
+      - LANG=en_US.UTF-8
       - TZ=Asia/Shanghai
     restart: always
     networks:
@@ -232,46 +240,45 @@ services:
       placement:
         constraints: [node.role == worker]
 
-  # # mysql
-  # mysql-server:
-  #   image: mysql
-  #   container_name: mysql-server
-  #   depends_on:
-  #   - redis-server
-  #   privileged: true
-  #   command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-  #   restart: always
-  #   networks:
-  #   - git-network
-  #   # tty: true
-  #   # cap_add:
-  #   # - IPC_LOCK
-  #   volumes:
-  #   - ${BASE_PATH}/mysql_/custom:/etc/mysql/conf.d
-  #   - ${BASE_PATH}/mysql_/datadir:/var/lib/mysql
-  #   - /etc/timezone:/etc/timezone:ro
-  #   - /etc/localtime:/etc/localtime:ro
-  #   ports:
-  #     - "3366:3306"
-  #   environment:
-  #   - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-  # deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints: [node.role == manager]
+  # mysql
+  mysql-server:
+    image: mysql
+    container_name: mysql-server
+    # depends_on:
+    # - redis-server
+    privileged: true
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    restart: always
+    networks:
+    - git-network
+    volumes:
+    - ${BASE_PATH}/mysql_/custom:/etc/mysql/conf.d
+    - ${BASE_PATH}/mysql_/datadir:/var/lib/mysql
+    - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+    ports:
+      - "3366:3306"
+    environment:
+      - LANG=en_US.UTF-8
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   adminer-server:
     image: adminer
     container_name: adminer-server
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     environment:
       - TZ=Asia/Shanghai
     restart: always
     networks:
       - git-network
     ports:
-      - 8080
+      - 30088:8080
     deploy:
       replicas: 1
       placement:
@@ -287,7 +294,8 @@ services:
     volumes:
       - ${BASE_PATH}/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${BASE_PATH}/nginx:/opt
-      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     ports:
       - "80:80"
       - "443:443"
@@ -303,5 +311,5 @@ services:
 
 networks:
   git-network:
-    driver: overlay
+    # driver: overlay
 # network_mode: overlay

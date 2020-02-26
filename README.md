@@ -73,4 +73,20 @@ export VAULT_TOKEN=${VAULT_TOKEN}
 
  > 可能由于某个容器发生未知错误，需手动 `docker rm -f 容器ID`
 
- 
+
+## 启动前在当前目录下 新建 `.env`文件， 填写如下变量配置
+ ```bash
+
+SYS__ADDR=
+GITEA_PROTOCAL=
+GITEA_DOMAIN_PORT=
+SYS_DRONE_ADDR=
+GITEA_SERVER=
+DRONE_GITEA_CLIENT_ID
+DRONE_GITEA_CLIENT_SECRET=
+DRONE_UI_PASSWORD=
+DRONE_UI_USERNAME=
+VAULT_TOKEN=
+MYSQL_ROOT_PASSWORD=
+
+ ```
