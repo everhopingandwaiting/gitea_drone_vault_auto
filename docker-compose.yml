@@ -41,8 +41,8 @@ services:
       - DRONE_JSONNET_ENABLED=true
       - LANG=en_US.UTF-8
       # db
-      # - DRONE_DATABASE_DRIVER=mysql
-      # - DRONE_DATABASE_DATASOURCE=root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true
+      - DRONE_DATABASE_DRIVER=${DB_TYPE}
+      - DRONE_DATABASE_DATASOURCE=root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true
       # GITEA CONFIG
       - DRONE_GITEA_SERVER=${GITEA_SERVER}
       - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
