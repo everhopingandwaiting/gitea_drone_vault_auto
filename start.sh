@@ -21,6 +21,13 @@ export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
 export DRONE_SERVER_PROTO=${GITEA_PROTOCAL}
 
+if [ ${DB_TYPE} = mysql ]
+then
+export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
+else 
+export DRONE_DATABASE_DATASOURCE=
+fi
+
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
 export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
 
@@ -60,9 +67,9 @@ docker-compose config
 echo "########################end#########################"
 #  docker-compose pull --include-deps
 # go go go ko
-docker-compose up --force-recreate  --remove-orphans 
-docker-compose up  --remove-orphans 
-docker-compose logs -t --tail="1000"
+docker-compose up --force-recreate  --remove-orphans -d
+# docker-compose up  --remove-orphans -d
+docker-compose logs
 # or 
 # docker stack deploy -c docker-compose.yml gitea_all
 
