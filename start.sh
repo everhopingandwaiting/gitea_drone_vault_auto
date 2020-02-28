@@ -14,7 +14,7 @@ gitea_domain=${SYS__ADDR} # get from .env
 
 export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 # gitea 
-export GITEA_SERVER=${GITEA_PROTOCAL}://${GITEA_SERVER}
+export GITEA_SERVER=${GITEA_PROTOCAL}://${GITEA_SERVER_HOST}
 export DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
 export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 # drone
@@ -54,6 +54,7 @@ sed -i "s/#gitea_protocal#/${GITEA_PROTOCAL}/g" ${BASE_PATH}/gitea/gitea/conf/ap
 sed -i "s/#mysql_root_password#/${MYSQL_ROOT_PASSWORD}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 sed -i "s/#db_type#/${DB_TYPE}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
+sed -i "s?#gitea_root_url#?$GITEA_SERVER?g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
 sed -i "s/need_to_replace_ip/${gitea_domain}/g"  `grep need_to_replace_ip -rl ${BASE_PATH}/gitea`
 
@@ -72,7 +73,7 @@ echo "########################end#########################"
 # go go go ko
 docker-compose up --force-recreate  --remove-orphans -d
 # docker-compose up  --remove-orphans -d
-docker-compose logs
+docker-compose logs -t --tail="1000"
 # or 
 # docker stack deploy -c docker-compose.yml gitea_all
 
