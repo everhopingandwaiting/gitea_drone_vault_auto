@@ -25,7 +25,8 @@ if [ ${DB_TYPE} = mysql ]
 then
 export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
 else 
-export DRONE_DATABASE_DATASOURCE=
+export DRONE_DATABASE_DATASOURCE=/data/database.sqlite
+echo no such db
 fi
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
@@ -55,6 +56,8 @@ sed -i "s/#db_type#/${DB_TYPE}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
 
 sed -i "s/need_to_replace_ip/${gitea_domain}/g"  `grep need_to_replace_ip -rl ${BASE_PATH}/gitea`
+
+rm -fr ${BASE_PATH}/gitea/gitea/indexers
 
 docker network prune -f
 docker system prune -f
