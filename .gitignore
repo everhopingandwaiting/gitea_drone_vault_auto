@@ -545,3 +545,4 @@ secret_document
 nohup.out
 switcher_backup.env
 *.env*
+minio_s3
