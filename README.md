@@ -8,6 +8,24 @@
 * 安装`docker`和 `docker-compose`
 * 启动 ： `sh start.sh`
 
+## 启动前在当前目录下 新建 `.env`文件， 填写如下变量配置
+ ```bash
+
+SYS__ADDR=
+GITEA_PROTOCAL=
+GITEA_DOMAIN_PORT=
+SYS_DRONE_ADDR=
+GITEA_SERVER=
+DRONE_GITEA_CLIENT_ID
+DRONE_GITEA_CLIENT_SECRET=
+DRONE_UI_PASSWORD=
+DRONE_UI_USERNAME=
+VAULT_TOKEN=
+MYSQL_ROOT_PASSWORD=
+DB_TYPE=
+ ```
+
+
 > 启动容器列表：
 
 
@@ -34,31 +52,44 @@ docker-compose 构建需要必须环境变量，执行前要么直接 `sh start.
 
 ```bash
 
+# base
+export BASE_PATH=/root/aliroot/ci_cd
+
+ls ${BASE_PATH} || mkdir -p ${BASE_PATH}
+cd ${BASE_PATH}
 source .env
 
 # gitea app.ini setup
 gitea_domain=${SYS__ADDR} # get from .env
 
-gitea_protocal=https
-
 ## env
-# base
-export BASE_PATH=/root/aliroot/ci_cd
+
 export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 # gitea 
-export GITEA_DOMAIN_PORT=10081
-export GITEA_SERVER=${gitea_protocal}://${gitea_domain}
-export DRONE_GITEA_CLIENT_ID=049b6079-084c-41c7-8b49-21a5f581bd4d
-export DRONE_GITEA_CLIENT_SECRET=1PHyGHGOfgn1jvDVf_TVxvvdEb5n1pC5q8x4gCP1mjA=
+export GITEA_SERVER=${GITEA_PROTOCAL}://${GITEA_SERVER_HOST}
+export DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
+export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 # drone
 export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
-export DRONE_SERVER_PROTO=https
+export DRONE_SERVER_PROTO=${GITEA_PROTOCAL}
+
+if [ ${DB_TYPE} = mysql ]
+then
+export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
+else 
+export DRONE_DATABASE_DATASOURCE=/data/database.sqlite
+echo no such db
+fi
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
 export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
 
 # vault
 export VAULT_TOKEN=${VAULT_TOKEN}
+
+DB_TYPE=${DB_TYPE}
+
+## end
 ```
 
 
@@ -74,19 +105,3 @@ export VAULT_TOKEN=${VAULT_TOKEN}
  > 可能由于某个容器发生未知错误，需手动 `docker rm -f 容器ID`
 
 
-## 启动前在当前目录下 新建 `.env`文件， 填写如下变量配置
- ```bash
-
-SYS__ADDR=
-GITEA_PROTOCAL=
-GITEA_DOMAIN_PORT=
-SYS_DRONE_ADDR=
-GITEA_SERVER=
-DRONE_GITEA_CLIENT_ID
-DRONE_GITEA_CLIENT_SECRET=
-DRONE_UI_PASSWORD=
-DRONE_UI_USERNAME=
-VAULT_TOKEN=
-MYSQL_ROOT_PASSWORD=
-DB_TYPE=
- ```
