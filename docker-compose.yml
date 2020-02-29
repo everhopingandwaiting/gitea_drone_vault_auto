@@ -274,32 +274,6 @@ services:
       placement:
         constraints: [node.role == worker]
 
-  # mysql
-  mysql-server:
-    image: mysql
-    container_name: mysql-server
-    # depends_on:
-    # - redis-server
-    privileged: true
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
-    restart: always
-    networks:
-      - git-network
-    volumes:
-      - ${BASE_PATH}/mysql_/custom:/etc/mysql/conf.d
-      - ${BASE_PATH}/mysql_/datadir:/var/lib/mysql
-      - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-    ports:
-      - "3366:3306"
-    environment:
-      - LANG=en_US.UTF-8
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
-
   adminer-server:
     image: adminer
     volumes:
@@ -316,9 +290,10 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
-
+        
   nginx-server:
     image: nginx
+    container_name: nginx-server
     depends_on:
       - docker-runner
       - ssh-runner
