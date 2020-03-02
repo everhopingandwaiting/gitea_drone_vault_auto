@@ -69,7 +69,7 @@ systemctl start docker.service
 echo "#######################start##########################"
 docker-compose config
 echo "########################end#########################"
-#  docker-compose pull --include-deps
+ docker-compose pull --include-deps
 # go go go ko
 ARGS_COMPOSE=
 if [ ${DB_TYPE} = mysql ]

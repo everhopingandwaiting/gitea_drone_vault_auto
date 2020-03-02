@@ -247,7 +247,7 @@ services:
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
     ports:
-      - "5005:5000"
+      - "5003:5000"
     environment:
       - LANG=en_US.UTF-8
       - TZ=Asia/Shanghai
