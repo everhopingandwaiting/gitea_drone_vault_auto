@@ -13,7 +13,7 @@ gitea_domain=${SYS__ADDR} # get from .env
 ## env
 
 export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-# gitea 
+# gitea
 export GITEA_SERVER=${GITEA_PROTOCAL}://${GITEA_SERVER_HOST}
 export DRONE_GITEA_CLIENT_ID=${DRONE_GITEA_CLIENT_ID}
 export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
@@ -21,12 +21,11 @@ export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
 export DRONE_SERVER_PROTO=${GITEA_PROTOCAL}
 
-if [ ${DB_TYPE} = mysql ]
-then
-export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
-else 
-export DRONE_DATABASE_DATASOURCE=/data/database.sqlite
-echo no such db
+if [ ${DB_TYPE} = mysql ]; then
+    export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
+else
+    export DRONE_DATABASE_DATASOURCE=/data/database.sqlite
+    echo no such db
 fi
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
@@ -40,7 +39,7 @@ DB_TYPE=${DB_TYPE}
 ## end
 
 # timezone config
-echo "Asia/Shanghai" > /etc/timezone
+echo "Asia/Shanghai" >/etc/timezone
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 mkdir -p ${BASE_PATH}/vault/config
@@ -56,7 +55,7 @@ sed -i "s/#db_type#/${DB_TYPE}/g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
 sed -i "s?#gitea_root_url#?$GITEA_SERVER?g" ${BASE_PATH}/gitea/gitea/conf/app.ini
 
-sed -i "s/need_to_replace_ip/${gitea_domain}/g"  `grep need_to_replace_ip -rl ${BASE_PATH}/gitea`
+sed -i "s/need_to_replace_ip/${gitea_domain}/g" $(grep need_to_replace_ip -rl ${BASE_PATH}/gitea)
 
 rm -fr ${BASE_PATH}/gitea/gitea/indexers
 
@@ -64,32 +63,33 @@ docker network prune -f
 docker system prune -f
 systemctl start docker.service
 
-
 #  before run docker-compose, print config first
 echo "#######################start##########################"
 docker-compose config
 echo "########################end#########################"
- docker-compose pull --include-deps
+
 # go go go ko
 ARGS_COMPOSE=
-if [ ${DB_TYPE} = mysql ]
-then
+if [ ${DB_TYPE} = mysql ]; then
     ARGS_COMPOSE="-f docker-compose-mysql.yml -f docker-compose.yml"
-else 
+else
     ARGS_COMPOSE="-f docker-compose.yml"
-echo no such db
+    echo no such db
 fi
+# docker-compose $ARGS_COMPOSE pull --include-deps
+if [ -n "$1" -a "$1" = "swarm" ]; then
+    echo "swarm start"
+    docker-compose $ARGS_COMPOSE config | docker stack deploy -c - gitea_all
 
-docker-compose $ARGS_COMPOSE up  --force-recreate  --remove-orphans  -d 
-docker-compose scale ssh-runner=2 docker-runner=2 
-docker-compose logs -t --tail="1000"
-# or 
-# docker stack deploy -c docker-compose.yml gitea_all
+else
+    docker-compose $ARGS_COMPOSE up --force-recreate --remove-orphans -d
+    docker-compose scale ssh-runner=2 docker-runner=2
+    docker-compose logs -t --tail="1000"
+fi
 
 docker ps
 
-
 # unseal vault
-curl --request PUT  --data "@secret_document/payload_vault.json"  http://127.0.0.1:8200/v1/sys/unseal
+curl --request PUT --data "@secret_document/payload_vault.json" http://127.0.0.1:8200/v1/sys/unseal
 
 # curl  --header "X-Vault-Token: ${VAULT_TOKEN}" http://127.0.0.1:8200/v1/sys/seal -X PUT
