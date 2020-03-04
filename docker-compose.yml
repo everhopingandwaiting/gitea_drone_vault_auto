@@ -160,9 +160,9 @@ services:
     networks:
       - git-network
     deploy:
-      replicas: 1
+      replicas: 3
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.role == worker]
 
   docker-runner:
     image: drone/drone-runner-docker
@@ -237,7 +237,7 @@ services:
     networks:
       - git-network
     deploy:
-      replicas: 2
+      replicas: 3
       placement:
         constraints: [node.role == worker]
 
@@ -257,7 +257,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.role == worker]
 
   redis-server:
     image: redis
@@ -289,7 +289,7 @@ services:
     deploy:
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints: [node.role == worker]
         
   nginx-server:
     image: nginx
