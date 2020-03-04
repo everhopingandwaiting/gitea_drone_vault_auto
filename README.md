@@ -105,3 +105,59 @@ DB_TYPE=${DB_TYPE}
  > 可能由于某个容器发生未知错误，需手动 `docker rm -f 容器ID`
 
 
+## docker volumn
+
+```
+docker plugin install rexray/s3fs S3FS_ACCESSKEY=minioadmin12 S3FS_SECRETKEY=minioadmin3 S3FS_ENDPOINT=http://192.168.0.14:9000 S3FS_REGION=my_region S3FS_DISABLEPATHSTYLE=false  --grant-all-permissions
+
+docker volume create -d rexray/s3fs 
+
+```
+
+
+## rexray service
+https://zhuanlan.zhihu.com/p/85333437
+`curl -sSL https://rexray.io/install | sh`
+
+***/etc/rexray/config.yml***
+
+```yml
+libstorage:
+  service: s3fs
+s3fs:
+  accessKey: ****  #minio的key
+  secretKey: ****
+  region: us-east-1
+  endpoint: http://172.17.0.2:9000  #minio的访问路径
+  disablePathStyle: false
+  options:
+          - url=http://172.17.0.2:9000
+          - use_path_request_style
+          - nonempty
+```
+
+##### steps:
+* service rexray start
+* rexray volume create testbucke
+* rexray volume mount volume testbucket
+* docker volume create -d reexray --name testbucket
+* docker volume ls 
+* docker volume inspect testbucket
+* volume 被容器挂载
+
+## or install s3fs-fuse
+```sh
+https://github.com/s3fs-fuse/s3fs-fuse
+
+echo ACCESS_KEY_ID:SECRET_ACCESS_KEY > ${HOME}/.passwd-s3fs
+chmod 600 ${HOME}/.passwd-s3fs
+
+yum install s3fs-fuse
+mkdir -p /root/test/fuse_test
+s3fs test /root/test/fuse_test -o passwd_file=${HOME}/.passwd-s3fs -o url=http://10.111.0.90:9000/
+
+ s3fs test /root/test/fuse_test -f -o passwd_file=${HOME}/.passwd-s3fs -s -o nomultipart -o sigv2 -o curldbg -o url=http://10.111.0.90:9000 -o use_path_request_style 
+
+s3fs download /minio_download -o passwd_file=${HOME}/.passwd-s3fs -s -o nomultipart -o sigv2 -o url=http://10.111.0.90:9000 -o use_path_request_style
+
+```
