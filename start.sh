@@ -68,13 +68,13 @@ echo "#######################start##########################"
 docker-compose config
 echo "########################end#########################"
 
+echo DB_TYPE:${DB_TYPE}
 # go go go ko
 ARGS_COMPOSE=
 if [ ${DB_TYPE} = mysql ]; then
     ARGS_COMPOSE="-f docker-compose-mysql.yml -f docker-compose.yml"
 else
     ARGS_COMPOSE="-f docker-compose.yml"
-    echo no such db
 fi
 docker-compose $ARGS_COMPOSE pull --include-deps
 if [ -n "$1" -a "$1" = "swarm" ]; then
