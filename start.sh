@@ -25,7 +25,6 @@ if [ ${DB_TYPE} = mysql ]; then
     export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
 else
     export DRONE_DATABASE_DATASOURCE=/data/database.sqlite
-    echo no such db
 fi
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
@@ -88,6 +87,7 @@ else
 fi
 
 docker ps
+docker images
 
 # unseal vault
 curl --request PUT --data "@secret_document/payload_vault.json" http://127.0.0.1:8200/v1/sys/unseal

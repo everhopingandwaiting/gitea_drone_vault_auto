@@ -161,3 +161,6 @@ s3fs test /root/test/fuse_test -o passwd_file=${HOME}/.passwd-s3fs -o url=http:/
 s3fs download /minio_download -o passwd_file=${HOME}/.passwd-s3fs -s -o nomultipart -o sigv2 -o url=http://10.111.0.90:9000 -o use_path_request_style
 
 ```
+
+
+ docker run -d  --name sshfs-container --mount type=volume,volume-driver=vieux/sshfs,src=sshvolume,target=/app,volume-opt=sshcmd=root@192.168.0.14:/devices/raid5/.minio/data/test,volume-opt=password=root123 nginx:latest
