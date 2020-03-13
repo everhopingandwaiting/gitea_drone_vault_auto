@@ -78,7 +78,7 @@ fi
 docker-compose $ARGS_COMPOSE pull --include-deps
 if [ -n "$1" -a "$1" = "swarm" ]; then
     echo "swarm start"
-    docker-compose $ARGS_COMPOSE config | docker stack deploy -c - gitea_all
+    docker-compose $ARGS_COMPOSE config | docker stack deploy -c - --prune --with-registry-auth gitea_all
 
 else
     docker-compose $ARGS_COMPOSE up --force-recreate --remove-orphans -d

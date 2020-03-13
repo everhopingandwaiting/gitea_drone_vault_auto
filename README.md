@@ -164,3 +164,17 @@ s3fs download /minio_download -o passwd_file=${HOME}/.passwd-s3fs -s -o nomultip
 
 
  docker run -d  --name sshfs-container --mount type=volume,volume-driver=vieux/sshfs,src=sshvolume,target=/app,volume-opt=sshcmd=root@192.168.0.14:/devices/raid5/.minio/data/test,volume-opt=password=root123 nginx:latest
+
+
+ ### swarm 模式节点匹配
+
+ ```
+node	attribute matches	example
+node.id	Node ID	node.id==2ivku8v2gvtg4
+node.hostname	Node hostname	node.hostname!=node-2
+node.role	Node role	node.role==manager
+node.labels	user defined node labels	node.labels.security==high
+engine.labels	Docker Engine's labels	engine.labels.operatingsystem==ubuntu 14.04
+
+
+```

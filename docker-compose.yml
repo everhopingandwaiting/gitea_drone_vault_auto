@@ -19,6 +19,7 @@ services:
     networks:
       - git-network
     deploy:
+      endpoint_mode: vip
       replicas: 1
       placement:
         constraints: [node.role == manager]
@@ -29,9 +30,10 @@ services:
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
       - ${BASE_PATH}/minio_s3:/data
+    commands:
       # default bucket maybe for drone
-      - ${BASE_PATH}/minio_s3/drone:/never_to_be_used
-    command: server /data
+      - mkdir -p /data/drone
+      - minio server /data
     ports:
       - "9009:9000"
     environment:
@@ -63,7 +65,7 @@ services:
     networks:
       - git-network
     environment:
-    # s3
+      # s3
       - DRONE_S3_ENDPOINT=http://minio-s3-server:9000
       - DRONE_S3_PATH_STYLE=true
       - DRONE_S3_SKIP_VERIFY=true
@@ -293,7 +295,7 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == worker]
-        
+
   nginx-server:
     image: nginx
     container_name: nginx-server
