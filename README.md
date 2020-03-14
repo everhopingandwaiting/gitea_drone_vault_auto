@@ -2,7 +2,6 @@
 
 ### gitea  drone + drone-runner + redis + mysql + vault + 自动部署脚本
 
-i## tett 测试
 
 * .env 中配置 `SYS__ADDR=  和 SYS_DRONE_ADDR= `环境变量
 * 按需改动`BASE_PATH`路径为自己需要的
