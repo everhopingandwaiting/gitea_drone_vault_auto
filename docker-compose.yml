@@ -30,7 +30,7 @@ services:
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
       - ${BASE_PATH}/minio_s3:/data
-    commands:
+    command:
       # default bucket maybe for drone
       - mkdir -p /data/drone
       - minio server /data
