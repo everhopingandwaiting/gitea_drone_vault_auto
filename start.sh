@@ -6,7 +6,7 @@ export BASE_PATH=/root/aliroot/ci_cd
 ls ${BASE_PATH} || mkdir -p ${BASE_PATH}
 cd ${BASE_PATH}
 source .env
-
+# kjfkf
 # gitea app.ini setup
 gitea_domain=${SYS__ADDR} # get from .env
 
