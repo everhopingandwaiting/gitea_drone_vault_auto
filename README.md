@@ -6,7 +6,7 @@ hhh
 * .env 中配置 `SYS__ADDR=  和 SYS_DRONE_ADDR= `环境变量
 * 按需改动`BASE_PATH`路径为自己需要的
 * 安装`docker`和 `docker-compose`
-* 启动 ： `sh start.sh`
+* 启动 ： `sh start.sh` or `sh start.sh swarm`
 
 ## 启动前在当前目录下 新建 `.env`文件， 填写如下变量配置
  ```bash
