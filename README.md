@@ -183,4 +183,9 @@ engine.labels	Docker Engine's labels	engine.labels.operatingsystem==ubuntu 14.04
 ### docker swarm ui 
 ```bash
 curl -L https://downloads.portainer.io/portainer-agent-stack.yml   | docker stack deploy -c - --prune --with-registry-auth portainer
+
+
+# init admin user: 
+curl --request POST http://127.0.0.1:9000/api/users/admin/init --data "{\"Username\":\"admin\",\"Password\":\"admin@admin\"}"
+
 ```
