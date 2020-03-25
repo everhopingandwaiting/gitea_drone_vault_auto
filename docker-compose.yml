@@ -282,7 +282,6 @@ services:
     image: adminer
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     environment:
       - TZ=Asia/Shanghai
     restart: always
@@ -306,7 +305,6 @@ services:
       - ${BASE_PATH}/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${BASE_PATH}/nginx:/opt
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     ports:
       - "80:80"
       - "443:443"
