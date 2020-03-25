@@ -19,6 +19,7 @@ services:
     networks:
       - git-network
     deploy:
+      endpoint_mode: vip
       replicas: 1
       placement:
         constraints: [node.role == manager]
@@ -63,7 +64,7 @@ services:
     networks:
       - git-network
     environment:
-    # blobd
+      # s3
       - DRONE_S3_ENDPOINT=http://minio-s3-server:9000
       - DRONE_S3_PATH_STYLE=true
       - DRONE_S3_SKIP_VERIFY=true
@@ -104,6 +105,9 @@ services:
       - DRONE_LOGS_COLOR=true
       # cron
       - DRONE_CRON_INTERVAL=1h
+      # cookie
+      - DRONE_COOKIE_SECRET=bea26a2221fd8090ea38720fc445eca6
+      - DRONE_STATUS_NAME=continuous-integration/drone
     deploy:
       replicas: 1
       placement:
@@ -278,7 +282,6 @@ services:
     image: adminer
     volumes:
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     environment:
       - TZ=Asia/Shanghai
     restart: always
@@ -290,7 +293,7 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == worker]
-        
+
   nginx-server:
     image: nginx
     container_name: nginx-server
@@ -302,7 +305,6 @@ services:
       - ${BASE_PATH}/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${BASE_PATH}/nginx:/opt
       - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     ports:
       - "80:80"
       - "443:443"

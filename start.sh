@@ -6,7 +6,7 @@ export BASE_PATH=/root/aliroot/ci_cd
 ls ${BASE_PATH} || mkdir -p ${BASE_PATH}
 cd ${BASE_PATH}
 source .env
-
+# kjfkf
 # gitea app.ini setup
 gitea_domain=${SYS__ADDR} # get from .env
 
@@ -25,7 +25,6 @@ if [ ${DB_TYPE} = mysql ]; then
     export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
 else
     export DRONE_DATABASE_DATASOURCE=/data/database.sqlite
-    echo no such db
 fi
 
 export DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
@@ -68,18 +67,20 @@ echo "#######################start##########################"
 docker-compose config
 echo "########################end#########################"
 
+echo DB_TYPE:${DB_TYPE}
 # go go go ko
 ARGS_COMPOSE=
 if [ ${DB_TYPE} = mysql ]; then
     ARGS_COMPOSE="-f docker-compose-mysql.yml -f docker-compose.yml"
 else
     ARGS_COMPOSE="-f docker-compose.yml"
-    echo no such db
 fi
 docker-compose $ARGS_COMPOSE pull --include-deps
 if [ -n "$1" -a "$1" = "swarm" ]; then
     echo "swarm start"
-    docker-compose $ARGS_COMPOSE config | docker stack deploy -c - gitea_all
+    docker-compose $ARGS_COMPOSE config | docker stack deploy -c - --prune --with-registry-auth gitea_all
+    docker node ls
+    docker stack services gitea_all
 
 else
     docker-compose $ARGS_COMPOSE up --force-recreate --remove-orphans -d
@@ -88,6 +89,7 @@ else
 fi
 
 docker ps
+docker images
 
 # unseal vault
 curl --request PUT --data "@secret_document/payload_vault.json" http://127.0.0.1:8200/v1/sys/unseal

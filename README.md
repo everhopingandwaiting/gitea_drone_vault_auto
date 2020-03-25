@@ -1,12 +1,12 @@
 [![Build Status](https://drone.jyao.xyz/api/badges/jyao/gitea_drone_vault_auto/status.svg)](https://drone.jyao.xyz/jyao/gitea_drone_vault_auto)
 
-### gitea + drone + drone-runner + redis + mysql + vault + 自动部署脚本
-
+### gitea  drone + drone-runner + redis + mysql + vault + 自动部署脚本
+hhh
 
 * .env 中配置 `SYS__ADDR=  和 SYS_DRONE_ADDR= `环境变量
 * 按需改动`BASE_PATH`路径为自己需要的
 * 安装`docker`和 `docker-compose`
-* 启动 ： `sh start.sh`
+* 启动 ： `sh start.sh` or `sh start.sh swarm`
 
 ## 启动前在当前目录下 新建 `.env`文件， 填写如下变量配置
  ```bash
@@ -159,5 +159,22 @@ s3fs test /root/test/fuse_test -o passwd_file=${HOME}/.passwd-s3fs -o url=http:/
  s3fs test /root/test/fuse_test -f -o passwd_file=${HOME}/.passwd-s3fs -s -o nomultipart -o sigv2 -o curldbg -o url=http://10.111.0.90:9000 -o use_path_request_style 
 
 s3fs download /minio_download -o passwd_file=${HOME}/.passwd-s3fs -s -o nomultipart -o sigv2 -o url=http://10.111.0.90:9000 -o use_path_request_style
+
+```
+
+
+ docker run -d  --name sshfs-container --mount type=volume,volume-driver=vieux/sshfs,src=sshvolume,target=/app,volume-opt=sshcmd=root@192.168.0.14:/devices/raid5/.minio/data/test,volume-opt=password=root123 nginx:latest
+
+
+ ### swarm 模式节点匹配
+
+ ```
+node	attribute matches	example
+node.id	Node ID	node.id==2ivku8v2gvtg4
+node.hostname	Node hostname	node.hostname!=node-2
+node.role	Node role	node.role==manager
+node.labels	user defined node labels	node.labels.security==high
+engine.labels	Docker Engine's labels	engine.labels.operatingsystem==ubuntu 14.04
+
 
 ```
