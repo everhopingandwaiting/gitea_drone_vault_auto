@@ -188,4 +188,6 @@ curl -L https://downloads.portainer.io/portainer-agent-stack.yml   | docker stac
 # init admin user: 
 curl --request POST http://127.0.0.1:9000/api/users/admin/init --data "{\"Username\":\"admin\",\"Password\":\"admin@admin\"}"
 
+## get token
+ curl --request POST http://127.0.0.1:9000/api/auth --data '{"Username":"admin","Password":"admin@admin"}'
 ```
