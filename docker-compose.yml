@@ -188,7 +188,7 @@ services:
       - DRONE_RPC_SECRET=drone_secret_by_jyao
       - DRONE_RUNNER_CAPACITY=12
       - DRONE_RUNNER_NAME=ub-jy
-      - DRONE_RUNNER_LABELS=foo:bar,baz:qux,host:${HOST}
+      - DRONE_RUNNER_LABELS=foo:bar,baz:qux,host:${HOSTNAME}
       - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
       - DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
       - DRONE_MEMORY_SWAP_LIMIT=500000000
@@ -227,7 +227,7 @@ services:
       - DRONE_RPC_SECRET=drone_secret_by_jyao
       - DRONE_RUNNER_CAPACITY=12
       - DRONE_RUNNER_NAME=ub-jy
-      - DRONE_RUNNER_LABELS=foo:bar,baz:qux,host:${HOST}
+      - DRONE_RUNNER_LABELS=foo:bar,baz:qux,host:${HOSTNAME}
       - DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
       - DRONE_UI_PASSWORD=${DRONE_UI_PASSWORD}
       - DRONE_MEMORY_SWAP_LIMIT=500000000
