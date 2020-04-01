@@ -1,5 +1,21 @@
 #! /bin/bash
+set -e
 
+function error() {
+    echo -e "Error: %*"
+    exit 1
+}
+function warning() {
+    echo -e "Warning: %*"
+    exit 1
+}
+
+################################################################
+# check command
+command -v docker >/dev/null 2>&1 || error "please install docker"
+command -v docker-compose >/dev/null 2>&1 || error "please install docker-compose"
+
+################################################################
 # base
 export BASE_PATH=/root/aliroot/ci_cd
 
@@ -21,6 +37,7 @@ export DRONE_GITEA_CLIENT_SECRET=${DRONE_GITEA_CLIENT_SECRET}
 export DRONE_SERVER_HOST=${SYS_DRONE_ADDR}
 export DRONE_SERVER_PROTO=${GITEA_PROTOCAL}
 
+DB_TYPE=${DB_TYPE}
 if [ ${DB_TYPE} = mysql ]; then
     export DRONE_DATABASE_DATASOURCE="root:${MYSQL_ROOT_PASSWORD}@tcp(mysql-server:3306)/drone?parseTime=true"
 else
@@ -32,8 +49,6 @@ export DRONE_UI_USERNAME=${DRONE_UI_USERNAME}
 
 # vault
 export VAULT_TOKEN=${VAULT_TOKEN}
-
-DB_TYPE=${DB_TYPE}
 
 ## end
 
@@ -62,9 +77,53 @@ docker network prune -f
 docker system prune -f
 systemctl start docker.service
 
+# #################################
+# parse args #######################################
+
+while [[ $# -gt 0 ]]; do
+    arg="$1"
+    case $arg in
+    -m | --mode)
+        MODE=$2
+        shift
+        ;;
+    -t | --test)
+        TEST=$2
+        shift
+        ;;
+    -p | --pull)
+        PULL=$2
+        shift
+        ;;
+    -f | --force)
+        FORCE=$2
+        shift
+        ;;
+    --ui)
+        PORTAINER=$2
+        shift
+        ;;
+    -h | --help)
+        echo "Usage: ############"
+        echo "-m|--mode -t|--test -h|--help -p|--pull -f|--force: force recreate"
+        exit 0
+        ;;
+    esac
+    shift
+done
+
+MODE=${MODE}
+TEST=${TEST:-true}
+PULL=${PULL:-false}
+FORCE=${FORCE:-true}
+PORTAINER=${PORTAINER:-false}
+################################
+
 #  before run docker-compose, print config first
 echo "#######################start##########################"
-docker-compose config
+if [ $TEST = true ]; then
+    docker-compose config
+fi
 echo "########################end#########################"
 
 echo DB_TYPE:${DB_TYPE}
@@ -75,15 +134,34 @@ if [ ${DB_TYPE} = mysql ]; then
 else
     ARGS_COMPOSE="-f docker-compose.yml"
 fi
-docker-compose $ARGS_COMPOSE pull --include-deps
-if [ -n "$1" -a "$1" = "swarm" ]; then
+
+if [ ${PULL} = true ]; then
+    docker-compose $ARGS_COMPOSE pull --include-deps
+fi
+
+if [ -z $MODE ]; then
+    echo "mode : compose or swarm, please give one use : -m | --mode "
+    exit 1
+
+fi
+
+if [ "$MODE" = "swarm" ]; then
     echo "swarm start"
+    if [ "$FORCE" = true ]; then
+        docker stack rm gitea_all
+        # sleep 5
+    fi
     docker-compose $ARGS_COMPOSE config | docker stack deploy -c - --prune --with-registry-auth gitea_all
     docker node ls
     docker stack services gitea_all
+fi
 
-else
-    docker-compose $ARGS_COMPOSE up --force-recreate --remove-orphans -d
+if [ "$MODE" = "compose" ]; then
+    if [ "$FORCE" = true ]; then
+        docker-compose $ARGS_COMPOSE up --force-recreate --remove-orphans -d
+    else
+        docker-compose $ARGS_COMPOSE up -d
+    fi
     docker-compose scale ssh-runner=2 docker-runner=2
     docker-compose logs -t --tail="1000"
 fi
@@ -95,3 +173,13 @@ docker images
 curl --request PUT --data "@secret_document/payload_vault.json" http://127.0.0.1:8200/v1/sys/unseal
 
 # curl  --header "X-Vault-Token: ${VAULT_TOKEN}" http://127.0.0.1:8200/v1/sys/seal -X PUT
+
+if [ "$PORTAINER" = true ]; then
+    curl -L https://downloads.portainer.io/portainer-agent-stack.yml | docker stack deploy -c - --prune --with-registry-auth portainer
+    sleep 5
+    # init admin user:
+    curl --request POST http://127.0.0.1:9000/api/users/admin/init --data "{\"Username\":\"admin\",\"Password\":\"admin@admin\"}"
+
+    ## get token
+    curl --request POST http://127.0.0.1:9000/api/auth --data '{"Username":"admin","Password":"admin@admin"}'
+fi

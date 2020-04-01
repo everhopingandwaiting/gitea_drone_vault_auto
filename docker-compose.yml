@@ -321,5 +321,6 @@ services:
         constraints: [node.role == manager]
 networks:
   git-network:
+    attachable: true
     # driver: overlay
 # network_mode: overlay
