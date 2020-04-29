@@ -319,6 +319,20 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
+  watchtower-server:
+    image: watchtower
+    command: ["--cleanup","--debug"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
+    networks:
+      - git-network
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.role == worker]        
 networks:
   git-network:
     attachable: true
