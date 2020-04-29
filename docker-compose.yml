@@ -320,7 +320,7 @@ services:
       placement:
         constraints: [node.role == manager]
   watchtower-server:
-    image: watchtower
+    image: containrrr/watchtower
     command: ["--cleanup","--debug"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
